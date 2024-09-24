@@ -1,1 +1,57 @@
-console.log("Hello world!");
+import * as aws from "@pulumi/aws";
+import * as pulumi from "@pulumi/pulumi";
+import { execSync } from "node:child_process";
+import * as path from "path";
+
+const compileLambda = () => {
+  execSync("pnpm install", { cwd: ".", stdio: "inherit" });
+  execSync("pnpm run build:lambda", { cwd: ".", stdio: "inherit" });
+};
+compileLambda();
+
+const eventBus = new aws.cloudwatch.EventBus("eventBus", {
+  name: "test-event-bus",
+});
+
+const eventRule = new aws.cloudwatch.EventRule("eventRule", {
+  eventBusName: eventBus.name,
+  eventPattern: JSON.stringify({
+    source: ["hono.api"],
+  }),
+});
+
+const lambdaRole = new aws.iam.Role("lambdaRole", {
+  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+    Service: "lambda.amazonaws.com",
+  }),
+});
+
+new aws.iam.RolePolicyAttachment("lambdaPolicy", {
+  role: lambdaRole.name,
+  policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+});
+
+const eventHandlerLambda = new aws.lambda.Function("eventHandlerLambda", {
+  runtime: aws.lambda.Runtime.NodeJS18dX,
+  code: new pulumi.asset.AssetArchive({
+    ".": new pulumi.asset.FileArchive(path.join(__dirname, "dist/lambda")),
+  }),
+  handler: "index.handler",
+  role: lambdaRole.arn,
+});
+
+new aws.lambda.Permission("eventBridgeInvokeLambdaPermission", {
+  action: "lambda:InvokeFunction",
+  function: eventHandlerLambda.name,
+  principal: "events.amazonaws.com",
+  sourceArn: eventRule.arn,
+});
+
+const eventTarget = new aws.cloudwatch.EventTarget("eventTarget", {
+  rule: eventRule.name,
+  arn: eventHandlerLambda.arn,
+  eventBusName: eventBus.name,
+});
+
+export const eventBusArn = eventBus.arn;
+export const lambdaFunctionName = eventHandlerLambda.name;

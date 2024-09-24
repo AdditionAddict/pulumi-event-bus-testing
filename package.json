@@ -2,16 +2,22 @@
   "name": "pulumi-event-bus-testing",
   "main": "index.ts",
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build:lambda": "esbuild lambda/index.ts --bundle --platform=node --target=node20.16 --outfile=dist/lambda/index.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^18",
+    "@types/node": "^20",
+    "esbuild": "0.24.0",
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@pulumi/aws": "^6.0.0",
     "@pulumi/awsx": "^2.0.2",
-    "@pulumi/pulumi": "^3.113.0"
+    "@pulumi/pulumi": "^3.113.0",
+    "@types/aws-lambda": "^8.10.145",
+    "hono": "^4.6.3"
   },
   "packageManager": "pnpm@9.1.1"
 }
