@@ -9,8 +9,18 @@ const compileLambda = () => {
 };
 compileLambda();
 
+const tags = {
+  Project: "MyEventBridgeProject",
+  Environment: "Development",
+  ManagedBy: "Pulumi",
+};
+
 const eventBus = new aws.cloudwatch.EventBus("eventBus", {
   name: "test-event-bus",
+  tags: {
+    ...tags,
+    Name: "MyEventBus",
+  },
 });
 
 const eventRule = new aws.cloudwatch.EventRule("eventRule", {
@@ -18,12 +28,20 @@ const eventRule = new aws.cloudwatch.EventRule("eventRule", {
   eventPattern: JSON.stringify({
     source: ["hono.api"],
   }),
+  tags: {
+    ...tags,
+    Name: "EventRule",
+  },
 });
 
 const lambdaRole = new aws.iam.Role("lambdaRole", {
   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
     Service: "lambda.amazonaws.com",
   }),
+  tags: {
+    ...tags,
+    Name: "LambdaExecutionRole",
+  },
 });
 
 new aws.iam.RolePolicyAttachment("lambdaPolicy", {
@@ -38,6 +56,10 @@ const eventHandlerLambda = new aws.lambda.Function("eventHandlerLambda", {
   }),
   handler: "index.handler",
   role: lambdaRole.arn,
+  tags: {
+    ...tags,
+    Name: "EventHandlerLambda",
+  },
 });
 
 new aws.lambda.Permission("eventBridgeInvokeLambdaPermission", {
