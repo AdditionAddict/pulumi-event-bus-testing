@@ -32,7 +32,7 @@ new aws.iam.RolePolicyAttachment("lambdaPolicy", {
 });
 
 const eventHandlerLambda = new aws.lambda.Function("eventHandlerLambda", {
-  runtime: aws.lambda.Runtime.NodeJS18dX,
+  runtime: aws.lambda.Runtime.NodeJS20dX,
   code: new pulumi.asset.AssetArchive({
     ".": new pulumi.asset.FileArchive(path.join(__dirname, "dist/lambda")),
   }),

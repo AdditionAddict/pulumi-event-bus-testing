@@ -13,11 +13,12 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@pulumi/aws": "^6.0.0",
-    "@pulumi/awsx": "^2.0.2",
-    "@pulumi/pulumi": "^3.113.0",
-    "@types/aws-lambda": "^8.10.145",
-    "hono": "^4.6.3"
+    "@aws-sdk/client-eventbridge": "^3.658.0",
+    "@pulumi/aws": "6.52.0",
+    "@pulumi/awsx": "2.15.0",
+    "@pulumi/pulumi": "3.134.0",
+    "@types/aws-lambda": "8.10.145",
+    "hono": "4.6.3"
   },
   "packageManager": "pnpm@9.1.1"
 }
